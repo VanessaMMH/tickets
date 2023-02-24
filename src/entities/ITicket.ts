@@ -8,10 +8,6 @@ export default interface ITicket extends IBaseItem{
     CategoriaId?: number;
     Categoria?: ICategoria;
     ResponsableId?: number;
-    ResponsableTitle?: string;
-    ResponsableEmail?: string;
     Responsable?: IPersonOrGroupField ;
-    Estado: string;
-
-
+    Estado: string; 
 }
