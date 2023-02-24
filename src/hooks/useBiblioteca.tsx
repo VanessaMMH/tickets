@@ -24,6 +24,6 @@ export default function useBiblioteca(){
         init().catch(console.error);
     }, []);
 
-
+    
     return {categorias,tickets, handler: {init, saveCategoria, deleteCategoria,saveTicket,getUserById}};
 }

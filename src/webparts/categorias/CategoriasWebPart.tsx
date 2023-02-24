@@ -13,11 +13,11 @@ import Categorias from '../../components/categorias/Categorias';
 import { initialize } from '@api/dataservice';
 import { store } from '@/store/store';
 import { Provider } from 'react-redux';
-
+import {WebPartContext} from "@microsoft/sp-webpart-base"
 
 export interface ICategoriasWebPartProps {
   title: string;
-  webURL:string
+  context:WebPartContext;
 
 }
 export interface ICustomWebPartProps {
@@ -39,7 +39,7 @@ export default class CategoriasWebPart extends BaseClientSideWebPart<ICategorias
   public render(): void {
     const element:JSX.Element = (
       <Provider store={store}>
-        <Categorias title={this.properties.title}  webURL={this.context.pageContext.web.absoluteUrl}
+        <Categorias title={this.properties.title}  context={this.context}
  />
       </Provider>);
 

@@ -48,16 +48,6 @@ const guardarTicket = createAsyncThunk(
   }
 );
 
-// const guardarTicket = createAsyncThunk<void, void>(
-//   "biblioteca/saveTicket",
-//   async (_, { dispatch, getState }) => {
-//     const {
-//       biblioteca: { ticketActual },
-//     } = getState() as any;
-//     await saveTicket(ticketActual);
-//     await dispatch(refreshBiblioteca());
-//   }
-// );
 const removeCategoria = createAsyncThunk(
   "biblioteca/removeCategoria",
   async (id: number, { dispatch }) => {
@@ -89,9 +79,12 @@ export const bibliotecaSlice = createSlice({
 
     builder.addCase(refreshBiblioteca.fulfilled, (state, action) => {
       state.tickets = action.payload.tickets;
+      state.categorias = action.payload.categorias;
+
     });
     builder.addCase(refreshBiblioteca.rejected, (state, action) => {
       state.tickets = [];
+      state.categorias = [];
     });
   },
 });

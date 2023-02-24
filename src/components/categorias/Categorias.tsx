@@ -1,70 +1,34 @@
 import * as React from "react";
 import styles from "./Categorias.module.scss";
 import ITicket from "@/entities/ITicket";
-import { useEffect } from "react";
 import useBiblioteca from "@/hooks/useBiblioteca";
-import PersonaField from "./PersonaField";
-import { DetailsList, IColumn, PrimaryButton } from "@fluentui/react";
-
-import {
-  ITheme,
-  mergeStyleSets,
-  getTheme,
-  getFocusStyle,
-  List,
-  ImageFit,
-  Image,
-} from "@fluentui/react";
-import { sp, Web } from "@pnp/sp/presets/all";
-
-const theme: ITheme = getTheme();
-const { palette, semanticColors, fonts } = theme;
-
-const classNames = mergeStyleSets({
-  itemCell: [
-    getFocusStyle(theme, { inset: -1 }),
-    {
-      minHeight: 54,
-      padding: 10,
-      boxSizing: "border-box",
-      borderBottom: `1px solid ${semanticColors.bodyDivider}`,
-      display: "flex",
-      selectors: {
-        "&:hover": { background: palette.neutralLight },
-      },
-    },
-  ],
-  itemImage: {
-    flexShrink: 0,
-  },
-  itemContent: {
-    marginLeft: 10,
-    overflow: "hidden",
-    flexGrow: 1,
-  },
-  itemName: [
-    fonts.xLarge,
-    {
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    },
-  ],
-  itemIndex: {
-    marginBottom: 10,
-  },
-});
+import FormTicket from "./FormTicket";
+import { useEffect } from "react";
+import { DetailsList, IColumn, PrimaryButton, Panel } from "@fluentui/react";
+import { find } from "lodash";
+import { WebPartContext } from "@microsoft/sp-webpart-base";
 
 interface ICategoriaProps {
   title: string;
-  webURL?: string;
+  context?: WebPartContext;
   Estado?: string;
 }
 
 export default function Categorias(props: ICategoriaProps): JSX.Element {
-  const { handler, tickets } = useBiblioteca();
+  const { handler, tickets, categorias } = useBiblioteca();
   const [columns, setColumns] = React.useState<IColumn[]>([]);
+  const [curLibro, setCurLibro] = React.useState<ITicket>({} as ITicket);
+  const [hiddenLibDlg, setHiddenLibDlg] = React.useState<boolean>(true);
 
+  const editarLibro = (ticket: ITicket) => {
+    setCurLibro(find(tickets, (lib) => lib.Id === ticket.Id));
+    setHiddenLibDlg(false);
+  };
+  const guardarTicket = async () => {
+    await handler.saveTicket(curLibro);
+    setHiddenLibDlg(true);
+    setCurLibro({} as ITicket);
+  };
   const initColumns = () => {
     setColumns([
       {
@@ -79,13 +43,8 @@ export default function Categorias(props: ICategoriaProps): JSX.Element {
               <PrimaryButton
                 text="Atender"
                 iconProps={{ iconName: "MobileAngled" }}
+                onClick={() => editarLibro(item)}
               />
-              {/*
-              <DefaultButton
-                text="Finalizar"
-                iconProps={{ iconName: "CaretSolidAlt" }}
-                onClick={() => updateCategoria(item)}
-              /> */}
             </div>
           );
         },
@@ -120,7 +79,7 @@ export default function Categorias(props: ICategoriaProps): JSX.Element {
         minWidth: 100,
         maxWidth: 200,
         isResizable: true,
-        onRender: (item: ITicket) => item?.Responsable?.Title,
+        onRender: (item: ITicket) => item?.Responsable?.Title
       },
     ]);
   };
@@ -139,17 +98,12 @@ export default function Categorias(props: ICategoriaProps): JSX.Element {
   }, []);
 
   const { title } = props;
-
-  useEffect(() => {
-    sp.web.lists
-      .getByTitle("Ticket")
-      .items.get()
-      .then((items) => {
-        console.log("mis items", items);
-      })
-      .catch(console.error);
-  }, []);
-
+  const abrirPanel = () => {
+    setHiddenLibDlg(false);
+  };
+  const cerrarPanel = () => {
+    setHiddenLibDlg(true);
+  };
   return (
     <section>
       <div className={styles.welcome}>
@@ -160,7 +114,27 @@ export default function Categorias(props: ICategoriaProps): JSX.Element {
           <DetailsList items={tickets} columns={columns} />
         )}
       </div>
-      <PersonaField fieldName="Responsable" />
+      <Panel
+        isOpen={!hiddenLibDlg}
+        onDismiss={cerrarPanel}
+        onRenderFooterContent={() => (
+          <div>
+            <PrimaryButton
+              text="Guardar"
+              iconProps={{ iconName: "Save" }}
+              onClick={() => {
+                guardarTicket().catch(console.error);
+              }}
+            />
+          </div>
+        )}
+      >
+        <FormTicket
+          ticket={curLibro}
+          context={props.context}
+          onChange={(lib: ITicket) => setCurLibro(lib)}
+        />
+      </Panel>
     </section>
   );
 }
