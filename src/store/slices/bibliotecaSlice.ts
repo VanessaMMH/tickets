@@ -2,6 +2,7 @@ import ICategoria from "@/entities/ICategoria";
 import ITicket from "@/entities/ITicket";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
+  getUserByEmail,
   getUserById,
   getCategoria,
   saveCategoria,
@@ -56,6 +57,14 @@ const removeCategoria = createAsyncThunk(
   }
 );
 
+const getByEmail = createAsyncThunk(
+  "biblioteca/getUserByEmail",
+  async(email:string, { dispatch }) => {
+   await  getUserByEmail(email);
+    return dispatch(refreshBiblioteca());
+  }
+);
+
 const getUser = createAsyncThunk(
   "biblioteca/getUser",
   async (id: number, { dispatch }) => {
@@ -90,5 +99,5 @@ export const bibliotecaSlice = createSlice({
 });
 
 export const { setTickets, setCurrentTicket } = bibliotecaSlice.actions;
-export { refreshBiblioteca, guardarCategoria, removeCategoria,guardarTicket,getUser };
+export { refreshBiblioteca, guardarCategoria, removeCategoria,guardarTicket,getUser ,getByEmail};
 export default bibliotecaSlice.reducer;

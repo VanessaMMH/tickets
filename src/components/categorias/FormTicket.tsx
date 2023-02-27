@@ -5,52 +5,54 @@ import useBiblioteca from "@/hooks/useBiblioteca";
 import styles from "./FormTicket.module.scss";
 import { Dropdown, TextField } from "@fluentui/react";
 import { find } from "lodash";
+
 import {
   PeoplePicker,
   PrincipalType,
 } from "@pnp/spfx-controls-react/lib/PeoplePicker";
 import { WebPartContext } from "@microsoft/sp-webpart-base";
-import { sp } from "@pnp/sp";  
-import "@pnp/sp/webs";  
-import "@pnp/sp/lists";  
-import "@pnp/sp/items"; 
+import { sp } from "@pnp/sp";
+import "@pnp/sp/webs";
+import "@pnp/sp/lists";
+import "@pnp/sp/items";
 export interface IFromLibroProps {
   ticket: ITicket;
-  context:WebPartContext
+  context: WebPartContext;
   onChange: (ticket: ITicket) => void;
 }
 
 export default function FormTicket(props: IFromLibroProps) {
   const { categorias } = useBiblioteca();
   const { ticket, onChange } = props;
-  // const [curLibro, setCurLibro] = React.useState<ILibro>({} as ILibro);
 
-  const [curUser, setCurUser] =  React.useState(null)
-
-  const _getPeoplePickerItems = (user: IPeoplePicker[]) => {
-    const tempUser:any=user
-    // users.map(user=>{
-    //   setCurUser({...user})
-    // })
-    setCurUser({...tempUser})
-    console.log('user',tempUser)
-    console.log('userc',curUser)
-
-  }
-  const setPeoplePicker=()=>{
-    sp.web.lists
-    .getByTitle('Ticket')
-    .items.add({ Title:"Responsable",ResponsableId:{results: curUser}})
-    .then(()=>alert('ok'))
-    .catch(console.error)
+  const getUserByEmail = async (email) => {
+    let item = { Id: 0, Title: "" };
+    try {
+      const items = await sp.web.siteUsers
+        .filter(`EMail eq '${email}'`)
+        .select("Id")
+        .get();
+      item = items[0];
+    } catch (ex) {
+      item = { Id: 0, Title: "" };
     }
+    return item;
+  };
+
+  const _getPeoplePickerItems = async (user: IPeoplePicker[]) => {
+   const email=user[0].secondaryText;
+    console.log("email", email);
+    const person = await getUserByEmail(email);
+    return person.Id;
+  };
+
   return (
-    <section  className={styles.containerPicker}>
+    <section className={styles.containerPicker}>
       <TextField
         label="Título"
         disabled
         value={ticket.Title}
-        onChange={(ev, nv) => {
+        onChange={(_, nv) => {
           onChange({ ...ticket, Title: nv });
         }}
       />
@@ -58,8 +60,9 @@ export default function FormTicket(props: IFromLibroProps) {
         label="Descripcion"
         disabled
         value={ticket.Descripcion}
-        multiline rows={3}
-        onChange={(ev, nv) => {
+        multiline
+        rows={3}
+        onChange={(_, nv) => {
           onChange({ ...ticket, Descripcion: nv });
         }}
       />
@@ -69,10 +72,11 @@ export default function FormTicket(props: IFromLibroProps) {
         placeholder="Ingresa el nombre"
         personSelectionLimit={1}
         showtooltip={true}
-        // isRequired={true}
-        onChange={_getPeoplePickerItems }
-        // defaultSelectedUsers={this.props.defaultUsers}
-        // principalTypes={[PrincipalType.User]}
+        onChange={async(ev) => {
+          const id =await _getPeoplePickerItems(ev)
+          onChange({ ...ticket, ResponsableId: id });
+        }}
+        principalTypes={[PrincipalType.User]}
       />
       <Dropdown
         label="Categoria"
@@ -86,7 +90,6 @@ export default function FormTicket(props: IFromLibroProps) {
           });
         }}
       />
-      <button onClick={setPeoplePicker}>asgff</button>
     </section>
   );
 }

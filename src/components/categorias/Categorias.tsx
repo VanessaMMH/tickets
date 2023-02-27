@@ -3,7 +3,6 @@ import styles from "./Categorias.module.scss";
 import ITicket from "@/entities/ITicket";
 import useBiblioteca from "@/hooks/useBiblioteca";
 import FormTicket from "./FormTicket";
-import Peoplepickercontrol from "./ Peoplepickercontrol";
 import { useEffect } from "react";
 import { DetailsList, IColumn, PrimaryButton, Panel } from "@fluentui/react";
 import { find } from "lodash";
@@ -16,7 +15,7 @@ interface ICategoriaProps {
 }
 
 export default function Categorias(props: ICategoriaProps): JSX.Element {
-  const { handler, tickets, categorias } = useBiblioteca();
+  const { handler, tickets } = useBiblioteca();
   const [columns, setColumns] = React.useState<IColumn[]>([]);
   const [curLibro, setCurLibro] = React.useState<ITicket>({} as ITicket);
   const [hiddenLibDlg, setHiddenLibDlg] = React.useState<boolean>(true);
@@ -80,7 +79,7 @@ export default function Categorias(props: ICategoriaProps): JSX.Element {
         minWidth: 100,
         maxWidth: 200,
         isResizable: true,
-        onRender: (item: ITicket) => item?.Responsable?.EMail
+        onRender: (item: ITicket) => item?.Responsable?.Title
       },
     ]);
   };
@@ -99,9 +98,7 @@ export default function Categorias(props: ICategoriaProps): JSX.Element {
   }, []);
 
   const { title } = props;
-  // const abrirPanel = () => {
-  //   setHiddenLibDlg(false);
-  // };
+
   const cerrarPanel = () => {
     setHiddenLibDlg(true);
   };
@@ -130,12 +127,11 @@ export default function Categorias(props: ICategoriaProps): JSX.Element {
           </div>
         )}
       >
-        {/* <FormTicket
+        <FormTicket
           ticket={curLibro}
           context={props.context}
           onChange={(lib: ITicket) => setCurLibro(lib)}
-        /> */}
-        <Peoplepickercontrol  description={"hola"} context={props.context}/>
+        />
       </Panel>
     </section>
   );

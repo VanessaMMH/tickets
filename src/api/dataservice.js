@@ -2,6 +2,7 @@ import {getItems,saveItem,deleteItem,initialize, cleanItem} from './spbase';
 
  
 const getUserById= async (id) => await getUserById(id)
+const getUserByEmail=async (email) =>await getUserByEmail(email)
 const getTickets = async (query) => await getItems('Ticket', query, '*,Categoria/Title,Responsable/Title,Responsable/EMail','Categoria,Responsable');
 const saveTicket = async (item) => await saveItem('Ticket', await cleanItem('Ticket', item));
 const getCategoria = async (query) => await getItems('Categoria', query, '*');
@@ -10,6 +11,7 @@ const deleteCategoria = async (id) => await deleteItem('Categoria', id);
 
 
 export {
+    getUserByEmail,
     getUserById,
     getTickets,
     saveTicket,
