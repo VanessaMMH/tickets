@@ -22,7 +22,7 @@ export interface IFromLibroProps {
 }
 
 export default function FormTicket(props: IFromLibroProps) {
-  const { categorias , handler} = useBiblioteca();
+  const { categorias, handler } = useBiblioteca();
   const { ticket, onChange } = props;
 
   const getUserByEmail = async (email: string) => {
@@ -88,6 +88,15 @@ export default function FormTicket(props: IFromLibroProps) {
         onChange={async (ev) => {
           const id = await _getPeoplePickerItems(ev);
           onChange({ ...ticket, ResponsableId: id });
+        }}
+      />
+      <TextField
+        label="Respuesta"
+        value={ticket.Respuesta}
+        multiline
+        rows={3}
+        onChange={(_, nv) => {
+          onChange({ ...ticket, Respuesta: nv });
         }}
       />
     </section>

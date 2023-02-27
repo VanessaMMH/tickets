@@ -4,10 +4,11 @@ import IPersonOrGroupField from "./IPersonOrGroupField";
 
 export default interface ITicket extends IBaseItem{
     Descripcion: string;
-    Solicitante:string;
+    SolicitanteId?:string;
     CategoriaId?: number;
     Categoria?: ICategoria;
     ResponsableId?: number;
     Responsable?: IPersonOrGroupField ;
     Estado: string; 
+    Respuesta:string;
 }

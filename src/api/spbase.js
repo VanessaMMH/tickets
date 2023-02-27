@@ -476,7 +476,7 @@ export async function getUserById(id){
 export async function getUserByEmail(email){
     let item = {Id: 0, Title: ''};
     try{
-        let items = await sp.web.siteUsers.filter(`EMail eq '${email}'`).expand('Groups').get();
+        let items = await sp.web.siteUsers.filter(`EMail eq '${email}'`).select("Id").expand('Groups').get();
         item = items[0];
     }catch(ex){
         item = {Id: 0, Title: ''};
