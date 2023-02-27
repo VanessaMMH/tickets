@@ -11,7 +11,7 @@ import {
   PrincipalType,
 } from "@pnp/spfx-controls-react/lib/PeoplePicker";
 import { WebPartContext } from "@microsoft/sp-webpart-base";
-import { sp } from "@pnp/sp";
+import { sp } from "@pnp/sp/presets/all";
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";
 import "@pnp/sp/items";
@@ -25,7 +25,7 @@ export default function FormTicket(props: IFromLibroProps) {
   const { categorias } = useBiblioteca();
   const { ticket, onChange } = props;
 
-  const getUserByEmail = async (email) => {
+  const getUserByEmail = async (email: string) => {
     let item = { Id: 0, Title: "" };
     try {
       const items = await sp.web.siteUsers
@@ -40,7 +40,7 @@ export default function FormTicket(props: IFromLibroProps) {
   };
 
   const _getPeoplePickerItems = async (user: IPeoplePicker[]) => {
-   const email=user[0].secondaryText;
+    const email = user[0].secondaryText;
     console.log("email", email);
     const person = await getUserByEmail(email);
     return person.Id;
@@ -66,18 +66,6 @@ export default function FormTicket(props: IFromLibroProps) {
           onChange({ ...ticket, Descripcion: nv });
         }}
       />
-      <PeoplePicker
-        context={props.context as any}
-        titleText="Selecciona el Responsable"
-        placeholder="Ingresa el nombre"
-        personSelectionLimit={1}
-        showtooltip={true}
-        onChange={async(ev) => {
-          const id =await _getPeoplePickerItems(ev)
-          onChange({ ...ticket, ResponsableId: id });
-        }}
-        principalTypes={[PrincipalType.User]}
-      />
       <Dropdown
         label="Categoria"
         options={categorias.map((a) => ({ key: a.Id, text: a.Title }))}
@@ -88,6 +76,18 @@ export default function FormTicket(props: IFromLibroProps) {
             CategoriaId: Number(nv.key),
             Categoria: find(categorias, (aut) => aut.Id === Number(nv.key)),
           });
+        }}
+      />
+      <PeoplePicker
+        context={props.context as any}
+        titleText="Selecciona el Responsable"
+        placeholder="Ingresa el nombre"
+        personSelectionLimit={1}
+        showtooltip={true}
+        principalTypes={[PrincipalType.User]}
+        onChange={async (ev) => {
+          const id = await _getPeoplePickerItems(ev);
+          onChange({ ...ticket, ResponsableId: id });
         }}
       />
     </section>

@@ -7,6 +7,12 @@ import { useEffect } from "react";
 import { DetailsList, IColumn, PrimaryButton, Panel } from "@fluentui/react";
 import { find } from "lodash";
 import { WebPartContext } from "@microsoft/sp-webpart-base";
+import {
+  MessageBar,
+  MessageBarType,
+  IStackProps,
+  Stack,
+} from "office-ui-fabric-react";
 
 interface ICategoriaProps {
   title: string;
@@ -14,21 +20,48 @@ interface ICategoriaProps {
   Estado?: string;
 }
 
+const verticalStackProps: IStackProps = {
+  styles: { root: { overflow: "hidden", width: "100%" } },
+  tokens: { childrenGap: 20 },
+};
+
 export default function Categorias(props: ICategoriaProps): JSX.Element {
   const { handler, tickets } = useBiblioteca();
   const [columns, setColumns] = React.useState<IColumn[]>([]);
   const [curLibro, setCurLibro] = React.useState<ITicket>({} as ITicket);
   const [hiddenLibDlg, setHiddenLibDlg] = React.useState<boolean>(true);
+  const [showMessageBar, setShowMessageBar] = React.useState<boolean>(false);
+  const [message, setMessage] = React.useState<string>("");
+  const [messageType, setMessageType] = React.useState<MessageBarType>();
+
+  const showandhideMessage = (): void => {
+    setShowMessageBar(true);
+    setTimeout(function () {
+      setShowMessageBar(false);
+    }, 3000);
+  };
 
   const editarLibro = (ticket: ITicket) => {
     setCurLibro(find(tickets, (lib) => lib.Id === ticket.Id));
     setHiddenLibDlg(false);
   };
   const guardarTicket = async () => {
-    await handler.saveTicket(curLibro);
-    setHiddenLibDlg(true);
-    setCurLibro({} as ITicket);
+    try {
+      await handler.saveTicket(curLibro);
+      setMessage("Item: " + curLibro.Title + " - created successfully!");
+      showandhideMessage();
+      setMessageType(MessageBarType.success);
+      setHiddenLibDlg(true);
+      setCurLibro({} as ITicket);
+    } catch (error) {
+      setMessage(
+        "Item " + curLibro.Title + " creation failed with error: " + error
+      );
+      setShowMessageBar(true);
+      setMessageType(MessageBarType.error);
+    }
   };
+
   const initColumns = () => {
     setColumns([
       {
@@ -79,7 +112,7 @@ export default function Categorias(props: ICategoriaProps): JSX.Element {
         minWidth: 100,
         maxWidth: 200,
         isResizable: true,
-        onRender: (item: ITicket) => item?.Responsable?.Title
+        onRender: (item: ITicket) => item?.Responsable?.Title,
       },
     ]);
   };
@@ -107,6 +140,13 @@ export default function Categorias(props: ICategoriaProps): JSX.Element {
       <div className={styles.welcome}>
         <h2>{title}</h2>
       </div>
+      {showMessageBar ? (
+        <div className="form-group">
+          <Stack {...verticalStackProps}>
+            <MessageBar messageBarType={messageType}>{message}</MessageBar>
+          </Stack>
+        </div>
+      ) : null}
       <div>
         {tickets && columns && (
           <DetailsList items={tickets} columns={columns} />
