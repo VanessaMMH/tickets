@@ -96,7 +96,7 @@ export default function FormTicket(props: IFromLibroProps) {
         multiline
         rows={3}
         onChange={(_, nv) => {
-          onChange({ ...ticket, Respuesta: nv });
+          onChange({ ...ticket, Respuesta: nv, Estado: "Atendido" });
         }}
       />
     </section>
