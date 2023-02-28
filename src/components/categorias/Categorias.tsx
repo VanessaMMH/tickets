@@ -63,10 +63,10 @@ export default function Categorias({
   };
 
   const addFormResponse = (ticket) => {
-    console.log('res',ticket)
+    // console.log('res',ticket)
     setShowFormResponse(true);
     editarLibro(ticket);
-
+    setCurLibro({ ...ticket, Estado: "En Atención" });
   };
 
   const guardarTicket = async () => {
@@ -97,7 +97,7 @@ export default function Categorias({
         onRender: (item: ITicket) => {
           return (
             <div className={styles.containerButton}>
-              {item.Responsable === undefined && (
+              {!item.Responsable && (
                 <PrimaryButton
                   text="Asignar"
                   iconProps={{ iconName: "AddFriend" }}
@@ -177,7 +177,10 @@ export default function Categorias({
       )}
       <div>
         {tickets && columns && (
-          <DetailsList items={tickets} columns={columns} />
+          <DetailsList
+            items={tickets.filter((ticket) => ticket.Estado !== "Atendido")}
+            columns={columns}
+          />
         )}
       </div>
       <Panel
@@ -185,7 +188,7 @@ export default function Categorias({
         onDismiss={cerrarPanel}
         onRenderFooterContent={() => (
           <PrimaryButton
-            text={showFormResponse ?"Finalizar Atención":"Guardar"}
+            text={showFormResponse ? "Finalizar Atención" : "Guardar"}
             iconProps={{ iconName: "Save" }}
             onClick={() => {
               guardarTicket().catch(console.error);

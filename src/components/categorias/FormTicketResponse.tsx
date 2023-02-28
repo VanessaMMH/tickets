@@ -22,7 +22,7 @@ export interface IFromLibroProps {
 }
 
 export default function FormTicket(props: IFromLibroProps) {
-  const { categorias, handler } = useBiblioteca();
+  const { categorias } = useBiblioteca();
   const { ticket, onChange } = props;
 
   const getUserByEmail = async (email: string) => {
