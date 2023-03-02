@@ -2,7 +2,7 @@ import * as React from "react";
 import styles from "./Tickets.module.scss";
 import useBiblioteca from "@/hooks/useBiblioteca";
 import ITicket from "@/entities/ITicket";
-import { TextField } from "@fluentui/react";
+import { TextField, Dropdown } from "@fluentui/react";
 import { useEffect } from "react";
 import { useAppDispatch } from "@/store/store";
 import { DetailsList, IColumn, Panel, PrimaryButton } from "@fluentui/react";
@@ -18,44 +18,26 @@ interface ITicketsProps {
   visible?: boolean;
 }
 
-export default function Tickets({title}: ITicketsProps): JSX.Element {
-  const { ticketsWithQuery, ticketActual,  handler} = useBiblioteca();
+export default function Tickets({ title }: ITicketsProps): JSX.Element {
+  
+  const { categorias,ticketsWithQuery, ticketActual, handler } = useBiblioteca();
   const dispatch = useAppDispatch();
   const [columns, setColumns] = React.useState<IColumn[]>([]);
   const [hiddenLibDlg, setHiddenLibDlg] = React.useState<boolean>(true);
-
-
-  const getTextValueFromQueryString = async () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const id = +urlParams.get("Id");
-    const foundTicket = find(ticketsWithQuery, (tick) => id === tick.Id);
-    if (foundTicket) {
-      dispatch(
-        setCurrentTicket({
-          ...foundTicket,
-          Estado: urlParams.get("Estado"),
-        })
-      );
-      await dispatch(guardarTicketWithQuery());
-      dispatch(setCurrentTicket({}));
-    }
-  };
-
-  useEffect(() => {
-    getTextValueFromQueryString().catch(console.error);
-  }, []);
 
   const saveTicket = async () => {
     dispatch(
       setCurrentTicket({
         ...ticketActual,
         Estado: "Abierto",
+        SolicitanteId:43
       })
     );
     await dispatch(guardarTicketWithQuery());
     dispatch(setCurrentTicket({}));
     setHiddenLibDlg(true);
   };
+  
 
   const handleFormField = (
     e: React.ChangeEvent<HTMLTextAreaElement>,
@@ -65,6 +47,19 @@ export default function Tickets({title}: ITicketsProps): JSX.Element {
       setCurrentTicket({
         ...ticketActual,
         [e.target.name]: e.target.value,
+      })
+    );
+  };
+
+  const handleFormFieldDropdown = (
+    e: React.FormEvent<HTMLDivElement>,
+    name: any
+  ) => {
+    dispatch(
+      setCurrentTicket({
+        ...ticketActual,
+        CategoriaId: Number(name.key),
+        Categoria: find(categorias, (aut) => aut.Id === Number(name.key)),
       })
     );
   };
@@ -84,7 +79,7 @@ export default function Tickets({title}: ITicketsProps): JSX.Element {
         fieldName: "Title",
         minWidth: 100,
         maxWidth: 200,
-        isResizable: true
+        isResizable: true,
       },
       {
         key: "descripcion",
@@ -93,6 +88,14 @@ export default function Tickets({title}: ITicketsProps): JSX.Element {
         minWidth: 100,
         maxWidth: 200,
         isResizable: true,
+      },
+      {
+        key: "categoria",
+        name: "Categoria",
+        minWidth: 100,
+        maxWidth: 200,
+        isResizable: true,
+        onRender: (item: ITicket) => item?.Categoria?.Title,
       },
       {
         key: "estado",
@@ -118,7 +121,6 @@ export default function Tickets({title}: ITicketsProps): JSX.Element {
     init().catch(console.error);
   }, []);
 
-
   return (
     <section>
       <h2 className={styles.header}>{title}</h2>
@@ -132,7 +134,6 @@ export default function Tickets({title}: ITicketsProps): JSX.Element {
         {ticketsWithQuery && columns && (
           <DetailsList items={ticketsWithQuery} columns={columns} />
         )}
-
       </div>
       <Panel
         isOpen={!hiddenLibDlg}
@@ -164,6 +165,12 @@ export default function Tickets({title}: ITicketsProps): JSX.Element {
           name="Descripcion"
           value={ticketActual?.Descripcion}
           onChange={handleFormField}
+        />
+        <Dropdown
+          label="Categoria"
+          options={categorias.map((a) => ({ key: a.Id, text: a.Title }))}
+          selectedKey={ticketActual?.CategoriaId}
+          onChange={handleFormFieldDropdown}
         />
       </Panel>
     </section>

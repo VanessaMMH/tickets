@@ -17,8 +17,8 @@ const getTicketsWithQuery = async (userId) =>
   await getItems(
     "Ticket",
     `SolicitanteId eq ${userId}`,
-    "*,Solicitante/Id",
-    "Solicitante"
+    "*,Solicitante/Id,Categoria/Title,Responsable/Title",
+    "Solicitante,Categoria,Responsable"
   );
 const saveTicket = async (item) =>
   await saveItem("Ticket", await cleanItem("Ticket", item));
