@@ -73,9 +73,12 @@ export async function getItems(lista, query, fields, expand, top, orderby){
             }
         }
         items = await req.get();
+        
+        
     }catch(ex){
         items = [];
     }
+  
     return items;
 }
 

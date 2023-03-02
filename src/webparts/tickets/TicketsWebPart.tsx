@@ -8,37 +8,34 @@ import {
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
 
-import * as strings from 'CategoriasWebPartStrings';
-import Categorias from '../../components/categorias/Categorias';
+import * as strings from 'TicketsWebPartStrings';
+import Tickets from '../../components/tickets/Tickets';
 import { initialize } from '@api/dataservice';
 import { store } from '@/store/store';
 import { Provider } from 'react-redux';
-import {WebPartContext} from "@microsoft/sp-webpart-base"
 
-export interface ICategoriasWebPartProps {
+export interface ITicketsWebPartProps {
   title: string;
-  context:WebPartContext;
 
 }
-export interface ICustomWebPartProps {
-  textValue: string;
-}
 
-export default class CategoriasWebPart extends BaseClientSideWebPart<ICategoriasWebPartProps> {
+export default class TicketsWebPart extends BaseClientSideWebPart<ITicketsWebPartProps> {
 
   private _isDarkTheme: boolean = false;
   private _environmentMessage: string = '';
 
-
   public render(): void {
+    const userId = this.context.pageContext.legacyPageContext.userId;
+    console.log(`El ID del usuario actual es: ${userId}`);
     const element:JSX.Element = (
       <Provider store={store}>
-        <Categorias title={this.properties.title}  context={this.context}
- />
+        <Tickets title={this.properties.title}/>
       </Provider>);
-
+  
     ReactDom.render(element, this.domElement);
   }
+
+
   protected async onInit(): Promise<void> {
     this._environmentMessage = this._getEnvironmentMessage();
     await initialize(this.context);
@@ -54,6 +51,8 @@ export default class CategoriasWebPart extends BaseClientSideWebPart<ICategorias
 
     return this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentSharePoint : strings.AppSharePointEnvironment;
   }
+
+
 
 
   protected onThemeChanged(currentTheme: IReadonlyTheme | undefined): void {
@@ -94,7 +93,7 @@ export default class CategoriasWebPart extends BaseClientSideWebPart<ICategorias
               groupName: strings.BasicGroupName,
               groupFields: [
                 PropertyPaneTextField('title', {
-                  label: strings.CategoriaFieldLabel
+                  label: strings.TitleFieldLabel
                 })
               ]
             }
